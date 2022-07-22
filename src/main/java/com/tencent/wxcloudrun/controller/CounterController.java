@@ -7,10 +7,7 @@ import com.tencent.wxcloudrun.dto.CounterRequest;
 import com.tencent.wxcloudrun.model.Counter;
 import com.tencent.wxcloudrun.service.CounterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -59,7 +56,7 @@ public class CounterController {
     logger.info("/api/count post request, action: {}", request.getAction());
 
     Optional<Counter> curCounter = counterService.getCounter(1);
-    if (request.getAction().equals("inc")) {
+    if ("inc".equals(request.getAction())) {
       Integer count = 1;
       if (curCounter.isPresent()) {
         count += curCounter.get().getCount();
@@ -69,7 +66,7 @@ public class CounterController {
       counter.setCount(count);
       counterService.upsertCount(counter);
       return ApiResponse.ok(count);
-    } else if (request.getAction().equals("clear")) {
+    } else if ("clear".equals(request.getAction())) {
       if (!curCounter.isPresent()) {
         return ApiResponse.ok(0);
       }
@@ -78,6 +75,18 @@ public class CounterController {
     } else {
       return ApiResponse.error("参数action错误");
     }
+  }
+
+
+  @DeleteMapping(value = "/api/count/del")
+  ApiResponse deleteCount(){
+    logger.info("/api/count/del delete request");
+    Optional<Counter> curCounter = counterService.getCounter(1);
+    if (!curCounter.isPresent()){
+      return ApiResponse.ok(0);
+    }
+    counterService.clearCount(1);
+    return ApiResponse.ok(0);
   }
   
 }
